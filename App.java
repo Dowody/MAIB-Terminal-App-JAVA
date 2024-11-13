@@ -388,15 +388,16 @@ public class  App {
             }
         }
 
-        System.out.println("\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+        System.out.println("\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
         System.out.println("Previous Transactions\n");
         transactionDataList = DataSystem.readTransactionsData();
         GetLastTransactions();
         System.out.println("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
 
         System.out.println("\n1. Fulfill Balance");
-        System.out.println("2. View All Transactions");
-        System.out.println("3. Send Money");
+        System.out.println("2. Send Money");
+        System.out.println("3. View All Transactions");
+        System.out.println("4. See Card Details");
 
         System.out.print(YELLOW + "\nEnter your choice: " + RESET);
         String choice = sc.nextLine();
@@ -407,12 +408,13 @@ public class  App {
                 FulfilBalance();
                 break;
             case "2":
-                ViewAllTransactions();
-                break;
-            case "3":
                 SendMoney();
                 break;
+            case "3":
+                ViewAllTransactions();
+                break;
             case "4":
+                SeeCardDetails();
                 break;
 
             default:
@@ -422,6 +424,66 @@ public class  App {
                 MainMenu();
         }
 
+    }
+
+    private static void SeeCardDetails()
+    {
+        clearTerminal();         System.out.print("\033[?25h");
+        System.out.println(GREEN + "~~~~ MAIB ~~~~" + RESET);
+        System.out.println(BLUE + "\n-> Card Details\n" + RESET);
+
+        for (Card card: cardsDataList)
+        {
+            if (card.getCardHolderName().equals(currentLoggedUser))
+            {
+                System.out.println("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n");
+                System.out.println(BLUE + "§" + RESET + " Name Surname           " + card.getCardHolderName());
+                System.out.println(BLUE + "§" + RESET + " Card Number            " + card.getCardNumber());
+                System.out.println(BLUE + "§" + RESET + " Expires                " + card.getCardExpiryDate());
+                System.out.println(BLUE + "§" + RESET + " CVV                    ***");
+                System.out.println("\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+
+                System.out.println("\n1. View CVV");
+                System.out.println("2. Main Menu");
+                System.out.print(YELLOW + "\nEnter your choice: " + RESET);
+                String choice = sc.nextLine();
+
+                switch (choice)
+                {
+                    case "1":
+                        if (VerifyUser("Card Details"))
+                        {
+                            System.out.print("\033[?25l");
+                            clearTerminal();
+                            System.out.println(GREEN + "~~~~ MAIB ~~~~" + RESET);
+                            System.out.println(BLUE + "\n-> Card Details\n" + RESET);
+
+                            System.out.println("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n");
+                            System.out.println(BLUE + "§" + RESET + " Name Surname           " + card.getCardHolderName());
+                            System.out.println(BLUE + "§" + RESET + " Card Number            **** **** " + maskCardNumber(card.getCardNumber()));
+                            System.out.println(BLUE + "§" + RESET + " Expires                *****");
+                            System.out.println(BLUE + "§ " + RESET + "CVV                    " + card.getCardCVV());
+                            System.out.println("\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+                            delayTime();
+                            SeeCardDetails();
+                        }
+                        else
+                        {
+                            SeeCardDetails();
+                        }
+
+                        break;
+                    case "2":
+                        MainMenu();
+                        break;
+                    default:
+                        clearTerminal();
+                        System.out.println(RED + "Invalid choice!" + RESET);
+                        delayTime();
+                        SeeCardDetails();
+                }
+            }
+        }
     }
 
     public static void SendMoney()
@@ -751,7 +813,31 @@ public class  App {
         }
     }
 
+    public static boolean VerifyUser(String methodName)
+    {
+        clearTerminal();
+        System.out.println(GREEN + "~~~~ MAIB ~~~~" + RESET);
+        System.out.println(BLUE + "\n-> " + methodName + "\n" + RESET);
 
+        System.out.println("We verify it is you...");
+        System.out.print("\nEnter Your Password: ");
+        String password = sc.nextLine();
+
+        for (User user: usersDataList)
+        {
+            if (user.getFullName().equals(currentLoggedUser))
+            {
+                if (!user.getPassword().equals(password)) {
+                    clearTerminal();
+                    System.out.println(RED + "The password doesn't match." + RESET);
+                    delayTime();
+                    return false;
+                }
+            }
+        }
+
+        return true;
+    }
 
 
     // Generator voids
